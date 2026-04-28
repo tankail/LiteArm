@@ -68,25 +68,6 @@ target_link_libraries(litearm_robot
         pthread
 )
 
-
-add_executable(canboard_update example/canboard_update.cpp)
-target_link_libraries(canboard_update litearm_robot)
-
-add_executable(motor_feedack example/motor_feedack.cpp)
-target_link_libraries(motor_feedack litearm_robot)
-
-add_executable(motor_move_zero example/motor_move_zero.cpp)
-target_link_libraries(motor_move_zero litearm_robot)
-
-add_executable(motor_run example/motor_run.cpp)
-target_link_libraries(motor_run litearm_robot)
-
-add_executable(motor_msg_subscriber example/motor_msg_subscriber.cpp)
-target_link_libraries(motor_msg_subscriber litearm_robot)
-
-add_executable(parse_demo example/parse_demo.cpp)
-target_link_libraries(parse_demo litearm_robot)
-
 set_target_properties(litearm_robot PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${VERSION_MAJOR}
@@ -134,44 +115,12 @@ install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/litearm_robotConfigVersion.cmake
     DESTINATION lib/cmake/litearm_robot
 )
-add_executable(motor_set_zero example/motor_set_zero.cpp)
-target_link_libraries(motor_set_zero litearm_robot)
-
-# LiteArm examples
-add_executable(0_robot_get_state examples/0_robot_get_state.cpp)
-target_link_libraries(0_robot_get_state litearm_robot ament_index_cpp::ament_index_cpp)
-
-add_executable(0_robot_set_zero examples/0_robot_set_zero.cpp)
-target_link_libraries(0_robot_set_zero litearm_robot ament_index_cpp::ament_index_cpp)
-
-add_executable(1_PD_control examples/1_PD_control.cpp)
-target_link_libraries(1_PD_control litearm_robot ament_index_cpp::ament_index_cpp)
-
-add_executable(1_PosVel_control examples/1_PosVel_control.cpp)
-target_link_libraries(1_PosVel_control litearm_robot ament_index_cpp::ament_index_cpp)
-
-add_executable(test_motor_enable examples/test_motor_enable.cpp)
-target_link_libraries(test_motor_enable litearm_robot ament_index_cpp::ament_index_cpp)
 
 # Find Pinocchio for dynamics computation (optional)
 find_package(pinocchio QUIET)
 
 if(pinocchio_FOUND)
-  message(STATUS "Found pinocchio, building 2_joint_impedance_control example")
-  add_executable(2_joint_impedance_control examples/2_joint_impedance_control.cpp)
-  target_link_libraries(2_joint_impedance_control litearm_robot pinocchio::pinocchio ament_index_cpp::ament_index_cpp)
-
-  message(STATUS "Building 3_cartesian_impedance_control example")
-  add_executable(3_cartesian_impedance_control examples/3_cartesian_impedance_control.cpp)
-  target_link_libraries(3_cartesian_impedance_control litearm_robot pinocchio::pinocchio ament_index_cpp::ament_index_cpp)
-
-  message(STATUS "Building pure_cartesian_impedance_control example")
-  add_executable(pure_cartesian_impedance_control examples/pure_cartesian_impedance_control.cpp)
-  target_link_libraries(pure_cartesian_impedance_control litearm_robot pinocchio::pinocchio ament_index_cpp::ament_index_cpp)
-
-  message(STATUS "Building cartesian_impedance_ab_motion example")
-  add_executable(cartesian_impedance_ab_motion examples/cartesian_impedance_ab_motion.cpp)
-  target_link_libraries(cartesian_impedance_ab_motion litearm_robot pinocchio::pinocchio ament_index_cpp::ament_index_cpp)
+  message(STATUS "Found pinocchio, building right arm gravity compensation examples")
 
   message(STATUS "Building right_arm_gravity_compensation example")
   add_executable(right_arm_gravity_compensation examples/right_arm_gravity_compensation.cpp)
@@ -180,38 +129,15 @@ if(pinocchio_FOUND)
   message(STATUS "Building right_arm_gravity_calc example (diagnostic only)")
   add_executable(right_arm_gravity_calc examples/right_arm_gravity_calc.cpp)
   target_link_libraries(right_arm_gravity_calc litearm_robot pinocchio::pinocchio ament_index_cpp::ament_index_cpp)
-else()
-  message(STATUS "pinocchio not found, skipping impedance control examples")
-endif()
 
-
-# Install example executables so ros2 run can find them
-install(TARGETS
-    canboard_update
-    motor_feedack
-    motor_move_zero
-    motor_run
-    motor_msg_subscriber
-    parse_demo
-    motor_set_zero
-    0_robot_get_state
-    0_robot_set_zero
-    1_PD_control
-    1_PosVel_control
-    test_motor_enable
-    RUNTIME DESTINATION lib/${PROJECT_NAME}
-)
-
-if(pinocchio_FOUND)
+  # Install gravity compensation executables
   install(TARGETS
-      2_joint_impedance_control
-      3_cartesian_impedance_control
-      pure_cartesian_impedance_control
-      cartesian_impedance_ab_motion
       right_arm_gravity_compensation
       right_arm_gravity_calc
       RUNTIME DESTINATION lib/${PROJECT_NAME}
   )
+else()
+  message(STATUS "pinocchio not found, skipping gravity compensation examples")
 endif()
 
 # Ament package setup for ROS2
