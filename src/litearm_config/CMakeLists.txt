@@ -15,3 +15,9 @@ endif()
 install(DIRECTORY config DESTINATION share/${PROJECT_NAME})
 install(DIRECTORY robot_param DESTINATION share/${PROJECT_NAME})
 install(FILES .setup_assistant DESTINATION share/${PROJECT_NAME})
+
+# Install scripts as executables
+install(PROGRAMS
+  scripts/aging_test.py
+  DESTINATION lib/${PROJECT_NAME}
+)

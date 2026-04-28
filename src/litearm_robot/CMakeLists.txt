@@ -172,6 +172,14 @@ if(pinocchio_FOUND)
   message(STATUS "Building cartesian_impedance_ab_motion example")
   add_executable(cartesian_impedance_ab_motion examples/cartesian_impedance_ab_motion.cpp)
   target_link_libraries(cartesian_impedance_ab_motion litearm_robot pinocchio::pinocchio ament_index_cpp::ament_index_cpp)
+
+  message(STATUS "Building right_arm_gravity_compensation example")
+  add_executable(right_arm_gravity_compensation examples/right_arm_gravity_compensation.cpp)
+  target_link_libraries(right_arm_gravity_compensation litearm_robot pinocchio::pinocchio ament_index_cpp::ament_index_cpp)
+
+  message(STATUS "Building right_arm_gravity_calc example (diagnostic only)")
+  add_executable(right_arm_gravity_calc examples/right_arm_gravity_calc.cpp)
+  target_link_libraries(right_arm_gravity_calc litearm_robot pinocchio::pinocchio ament_index_cpp::ament_index_cpp)
 else()
   message(STATUS "pinocchio not found, skipping impedance control examples")
 endif()
@@ -200,6 +208,8 @@ if(pinocchio_FOUND)
       3_cartesian_impedance_control
       pure_cartesian_impedance_control
       cartesian_impedance_ab_motion
+      right_arm_gravity_compensation
+      right_arm_gravity_calc
       RUNTIME DESTINATION lib/${PROJECT_NAME}
   )
 endif()
