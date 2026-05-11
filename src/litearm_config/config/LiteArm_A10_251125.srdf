@@ -68,7 +68,7 @@
          For right arm only, we use a chain that includes the gripper -->
     <!-- Note: Using parent_group with a chain-based group -->
     <end_effector name="right_effector" parent_link="r_gripper_link" group="right_arm"/>
-    <!-- Left arm/effector removed since only right arm is connected -->
+    <end_effector name="left_effector" parent_link="l_gripper_link" group="left_arm"/>
     <!--VIRTUAL JOINT: Purpose: this element defines a virtual joint between a robot link and an external frame of reference (considered fixed with respect to the robot)-->
     <virtual_joint name="virtual_joint" type="fixed" parent_frame="world" child_link="base_link"/>
     <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->

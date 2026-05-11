@@ -115,8 +115,8 @@
      <origin xyz="0 0.059 0" rpy="0 0 0" />
      <parent link="l_joint1_link" />
      <child link="l_joint2_link" />
-     <axis xyz="1 0 0" />
-     <limit lower="-0.27925" upper="2.8623" effort="75" velocity="6.0737" />
+     <axis xyz="-1 0 0" />
+     <limit lower="-2.8623" upper="0.27925" effort="75" velocity="6.0737" />
      <dynamics damping="0.02" friction="0.0"/> <!-- 即使很小的阻尼也能极大改善稳定性 -->
    </joint>
    <link name="l_joint3_link">
@@ -145,7 +145,7 @@
      <origin xyz="0.00075 0 -0.0646" rpy="0 0 0" />
      <parent link="l_joint2_link" />
      <child link="l_joint3_link" />
-     <axis xyz="0 0 1" />
+     <axis xyz="0 0 -1" />
      <limit lower="-1.5708" upper="1.5708" effort="50" velocity="6.0737" />
      <dynamics damping="0.02" friction="0.0"/> <!-- 即使很小的阻尼也能极大改善稳定性 -->
    </joint>
@@ -205,7 +205,7 @@
      <origin xyz="0 0 -0.094" rpy="0 0 0" />
      <parent link="l_joint4_link" />
      <child link="l_joint5_link" />
-     <axis xyz="0 0 1" />
+     <axis xyz="0 0 -1" />
      <limit lower="-1.5708" upper="1.5708" effort="10" velocity="10.263" />
      <dynamics damping="0.02" friction="0.0"/> <!-- 即使很小的阻尼也能极大改善稳定性 -->
    </joint>
@@ -235,7 +235,7 @@
      <origin xyz="0 0 -0.1255" rpy="0 0 0" />
      <parent link="l_joint5_link" />
      <child link="l_joint6_link" />
-     <axis xyz="1 0 0" />
+     <axis xyz="-1 0 0" />
      <limit lower="-0.76794" upper="0.76794" effort="20" velocity="6.2832" />
      <dynamics damping="0.02" friction="0.0"/> <!-- 即使很小的阻尼也能极大改善稳定性 -->
    </joint>
@@ -427,7 +427,7 @@
      <parent link="r_joint1_link" />
      <child link="r_joint2_link" />
      <axis xyz="-1 0 0" />
-     <limit lower="-0.27925" upper="2.8623" effort="75" velocity="6.0737" />   <!-- 改了 -->
+     <limit lower="-2.8623" upper="0.27925" effort="75" velocity="6.0737" />   <!-- 改了 -->
      <dynamics damping="0.02" friction="0.0"/> <!-- 即使很小的阻尼也能极大改善稳定性 -->
    </joint>
    <link name="r_joint3_link">

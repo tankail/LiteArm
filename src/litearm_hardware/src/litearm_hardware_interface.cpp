@@ -129,6 +129,21 @@ hardware_interface::CallbackReturn LiteArmHardwareInterface::on_init(
                 "Joint %s: max_torque=%.2f, max_velocity=%.2f, kp=%.2f, kd=%.2f",
                 info_.joints[i].name.c_str(), max_torques_[i], max_velocities_[i],
                 kp_gains_[i], kd_gains_[i]);
+    }
+
+  // Initialize joint direction signs (default: normal)
+  joint_sign_.resize(info_.joints.size(), 1.0);
+
+  // Load per-joint reverse parameter
+  for (size_t i = 0; i < info_.joints.size(); i++)
+  {
+    if (info_.joints[i].parameters.find("reverse") != info_.joints[i].parameters.end() &&
+        info_.joints[i].parameters.at("reverse") == "true")
+    {
+      joint_sign_[i] = -1.0;
+      RCLCPP_INFO(rclcpp::get_logger("LiteArmHardwareInterface"),
+                  "Joint %s: direction REVERSED", info_.joints[i].name.c_str());
+    }
   }
 
   return hardware_interface::CallbackReturn::SUCCESS;
@@ -183,13 +198,13 @@ hardware_interface::CallbackReturn LiteArmHardwareInterface::on_configure(
 
     for (size_t i = 0; i < 7; i++)
     {
-      hw_positions_[i] = positions[i];
-      hw_velocities_[i] = velocities[i];
-      hw_efforts_[i] = torques[i];
-      hw_commands_positions_[i] = positions[i];  // Initialize commands to current position
+      hw_positions_[i] = positions[i] * joint_sign_[i];
+      hw_velocities_[i] = velocities[i] * joint_sign_[i];
+      hw_efforts_[i] = torques[i] * joint_sign_[i];
+      hw_commands_positions_[i] = positions[i] * joint_sign_[i];  // Initialize commands to current position
     }
 
-    // Read gripper state (8th joint, index 7 = L_finger_joint) if present
+    // Read gripper (8th joint, index 7, the controlled finger) if present
     // Convert from radians to meters for prismatic joint
     if (info_.joints.size() > 7)
     {
@@ -200,11 +215,11 @@ hardware_interface::CallbackReturn LiteArmHardwareInterface::on_configure(
       hw_commands_positions_[7] = hw_positions_[7];  // Initialize commands to current position
     }
 
-    // R_finger_joint (9th joint, index 8) is a mimic joint that follows L_finger_joint
+    // Finger mimic joint (9th joint, index 8) mirrors the controlled finger (index 7)
     if (info_.joints.size() > 8)
     {
-      hw_positions_[8] = -hw_positions_[7];  // Mimic L_finger_joint position (negated, opposite direction)
-      hw_velocities_[8] = -hw_velocities_[7];  // Mimic L_finger_joint velocity (negated)
+      hw_positions_[8] = -hw_positions_[7];  // Mimic position (negated, opposite direction)
+      hw_velocities_[8] = -hw_velocities_[7];  // Mimic velocity (negated)
       hw_efforts_[8] = 0.0;  // Passive joint, no actuator
       hw_commands_positions_[8] = hw_positions_[8];
     }
@@ -247,8 +262,8 @@ LiteArmHardwareInterface::export_command_interfaces()
   std::vector<hardware_interface::CommandInterface> command_interfaces;
   for (size_t i = 0; i < info_.joints.size(); i++)
   {
-    // Skip command interfaces for mimic joints (r_l_finger_joint)
-    if (info_.joints[i].name == "r_l_finger_joint")
+    // Skip command interfaces for mimic joints (joints defined without command_interfaces in URDF)
+    if (info_.joints[i].command_interfaces.empty())
     {
       continue;
     }
@@ -311,13 +326,13 @@ hardware_interface::CallbackReturn LiteArmHardwareInterface::on_activate(
       {
         for (size_t i = 0; i < 7; i++)
         {
-          hw_positions_[i] = positions[i];
-          hw_velocities_[i] = velocities[i];
-          hw_efforts_[i] = torques[i];
-          hw_commands_positions_[i] = positions[i];
+          hw_positions_[i] = positions[i] * joint_sign_[i];
+          hw_velocities_[i] = velocities[i] * joint_sign_[i];
+          hw_efforts_[i] = torques[i] * joint_sign_[i];
+          hw_commands_positions_[i] = positions[i] * joint_sign_[i];
         }
 
-        // Read gripper position (8th joint, index 7 = L_finger_joint) if present
+        // Read gripper position (8th joint, index 7, controlled finger) if present
         if (info_.joints.size() > 7)
         {
           double gripper_rad = robot_->getCurrentPosGripper();
@@ -327,7 +342,7 @@ hardware_interface::CallbackReturn LiteArmHardwareInterface::on_activate(
           hw_commands_positions_[7] = gripper_rad * gripper_rad_to_m_;
         }
 
-        // R_finger_joint (9th joint, index 8) is a mimic joint
+        // Finger mimic joint (9th joint, index 8) mirrors the controlled finger
         if (info_.joints.size() > 8)
         {
           hw_positions_[8] = -hw_positions_[7];
@@ -403,13 +418,13 @@ hardware_interface::return_type LiteArmHardwareInterface::read(
       // Only update if we got valid data (not the initialization 999.0 value)
       if (std::abs(positions[i]) <= 100.0)
       {
-        hw_positions_[i] = positions[i];
+        hw_positions_[i] = positions[i] * joint_sign_[i];
       }
-      hw_velocities_[i] = velocities[i];
-      hw_efforts_[i] = torques[i];
+      hw_velocities_[i] = velocities[i] * joint_sign_[i];
+      hw_efforts_[i] = torques[i] * joint_sign_[i];
     }
 
-    // Read gripper state (8th joint, index 7 = L_finger_joint)
+    // Read gripper state (8th joint, index 7, the controlled finger)
     // Convert from radians to meters for prismatic joint
     if (info_.joints.size() > 7)
     {
@@ -422,11 +437,11 @@ hardware_interface::return_type LiteArmHardwareInterface::read(
       hw_efforts_[7] = robot_->getCurrentTorqueGripper();
     }
 
-    // R_finger_joint (9th joint, index 8) is a mimic joint that follows L_finger_joint
+    // Finger mimic joint (9th joint, index 8) mirrors the controlled finger (index 7)
     if (info_.joints.size() > 8)
     {
-      hw_positions_[8] = -hw_positions_[7];  // Mimic L_finger_joint position (negated, opposite direction)
-      hw_velocities_[8] = -hw_velocities_[7];  // Mimic L_finger_joint velocity (negated)
+      hw_positions_[8] = -hw_positions_[7];  // Mimic position (negated, opposite direction)
+      hw_velocities_[8] = -hw_velocities_[7];  // Mimic velocity (negated)
       hw_efforts_[8] = 0.0;
     }
   }
@@ -481,6 +496,14 @@ hardware_interface::return_type LiteArmHardwareInterface::write(
       {
         arm_efforts[i] = 0.0;
       }
+    }
+
+    // Apply direction sign for reversed joints (convert from URDF convention to motor convention)
+    for (size_t i = 0; i < 7; i++)
+    {
+      arm_positions[i] *= joint_sign_[i];
+      arm_velocities[i] *= joint_sign_[i];
+      arm_efforts[i] *= joint_sign_[i];
     }
 
     // Control 7 arm joints

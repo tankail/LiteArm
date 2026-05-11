@@ -71,6 +71,9 @@ private:
   std::vector<double> kp_gains_;
   std::vector<double> kd_gains_;
 
+  // Per-joint direction sign (1.0 = normal, -1.0 = reversed)
+  std::vector<double> joint_sign_;
+
   // Control mode
   std::string control_mode_;  // "position_velocity", "pd_control", or "full_control"
 

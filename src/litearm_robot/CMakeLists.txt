@@ -86,6 +86,8 @@ install(DIRECTORY include/ DESTINATION include
     FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h")
 install(DIRECTORY msg/motor_msg/ DESTINATION include/motor_msg
     FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h")
+install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY config DESTINATION share/${PROJECT_NAME})
 install(DIRECTORY robot_param/ DESTINATION share/litearm_robot/robot_param
     FILES_MATCHING PATTERN "*.yaml")
 install(DIRECTORY urdf/ DESTINATION share/litearm_robot/urdf
@@ -126,14 +128,44 @@ if(pinocchio_FOUND)
   add_executable(right_arm_gravity_compensation examples/right_arm_gravity_compensation.cpp)
   target_link_libraries(right_arm_gravity_compensation litearm_robot pinocchio::pinocchio ament_index_cpp::ament_index_cpp)
 
+  message(STATUS "Building left_arm_gravity_compensation example")
+  add_executable(left_arm_gravity_compensation examples/left_arm_gravity_compensation.cpp)
+  target_link_libraries(left_arm_gravity_compensation litearm_robot pinocchio::pinocchio ament_index_cpp::ament_index_cpp)
+
   message(STATUS "Building right_arm_gravity_calc example (diagnostic only)")
   add_executable(right_arm_gravity_calc examples/right_arm_gravity_calc.cpp)
   target_link_libraries(right_arm_gravity_calc litearm_robot pinocchio::pinocchio ament_index_cpp::ament_index_cpp)
+
+  message(STATUS "Building left_arm_gravity_calc example (diagnostic only)")
+  add_executable(left_arm_gravity_calc examples/left_arm_gravity_calc.cpp)
+  target_link_libraries(left_arm_gravity_calc litearm_robot pinocchio::pinocchio ament_index_cpp::ament_index_cpp)
+
+  message(STATUS "Building left_arm_joint_angle example")
+  add_executable(left_arm_joint_angle examples/left_arm_joint_angle.cpp)
+  target_link_libraries(left_arm_joint_angle litearm_robot ament_index_cpp::ament_index_cpp)
+
+  message(STATUS "Building dual_arm_aging_test example")
+  add_executable(dual_arm_aging_test examples/dual_arm_aging_test.cpp)
+  target_link_libraries(dual_arm_aging_test litearm_robot ament_index_cpp::ament_index_cpp)
+
+  message(STATUS "Building dual_arm_aging_test111 example")
+  add_executable(dual_arm_aging_test111 examples/dual_arm_aging_test111.cpp)
+  target_link_libraries(dual_arm_aging_test111 litearm_robot ament_index_cpp::ament_index_cpp)
+
+  message(STATUS "Building dual_left_arm_gravity_compensation example")
+  add_executable(dual_left_arm_gravity_compensation examples/dual_left_arm_gravity_compensation.cpp)
+  target_link_libraries(dual_left_arm_gravity_compensation litearm_robot pinocchio::pinocchio ament_index_cpp::ament_index_cpp)
 
   # Install gravity compensation executables
   install(TARGETS
       right_arm_gravity_compensation
       right_arm_gravity_calc
+      left_arm_gravity_compensation
+      left_arm_gravity_calc
+      left_arm_joint_angle
+      dual_arm_aging_test
+      dual_arm_aging_test111
+      dual_left_arm_gravity_compensation
       RUNTIME DESTINATION lib/${PROJECT_NAME}
   )
 else()
